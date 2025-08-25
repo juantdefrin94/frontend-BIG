@@ -1,3 +1,5 @@
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import "jquery/dist/jquery.min.js";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 

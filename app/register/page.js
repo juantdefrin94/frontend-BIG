@@ -1,0 +1,220 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+
+export default function AuthPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [firstname, setFirstname] = useState("");
+  const [lastname, setLastname] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await fetch("http://127.0.0.1:3000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstname, lastname, username: email, password }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+      if (data.status == 200) {
+        await Swal.fire({
+            icon: "success",
+            title: "Registered!",
+            text: "Your account has been created successfully.",
+            timer: 1000, 
+            showConfirmButton: false,
+            timerProgressBar: true, // optional, progress bar
+        });
+
+        router.push("/");
+        
+      } else if(data.status == 202){
+        await Swal.fire({
+            icon: "error",
+            title: "Duplicate!",
+            text: "Email already registered.",
+            timer: 1000, 
+            showConfirmButton: false,
+            timerProgressBar: true, // optional, progress bar
+        });
+      }else {
+        alert(data.message);
+      }
+    } catch {
+      alert("Server error!");
+    }
+  };
+
+  const toLogin = () => {
+    router.push("/");
+  }
+
+  return (
+    <div style={styles.container}>
+      <div style={styles.leftContainer}>
+        <img src="/assets/img/register.png" style={styles.img} />
+      </div>
+      <div style={styles.rightContainer}>
+        <div style={styles.card}>
+            <div style={styles.titleContainer}>
+                <h1 style={styles.title}>Welcome to</h1>
+                <p style={styles.subtitle}><b>BIGFORUM</b></p>
+            </div>
+            <form onSubmit={handleSubmit} style={styles.form}>
+
+                <div style={{ position: "relative", marginBottom: "20px" }}>
+                <i className="fas fa-person" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#888" }}></i>
+                <input
+                    type="text"
+                    placeholder="Firstname"
+                    value={firstname}
+                    onChange={(e) => setFirstname(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "12px 40px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px" }}
+                />
+                </div>
+
+                <div style={{ position: "relative", marginBottom: "20px" }}>
+                <i className="fas fa-person" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#888" }}></i>
+                <input
+                    type="text"
+                    placeholder="Lastname"
+                    value={lastname}
+                    onChange={(e) => setLastname(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "12px 40px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px" }}
+                />
+                </div>
+                
+                <div style={{ position: "relative", marginBottom: "20px" }}>
+                <i className="fas fa-envelope" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#888" }}></i>
+                <input
+                    type="email"
+                    placeholder="example@gmail.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "12px 40px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px" }}
+                />
+                </div>
+
+                {/* Password Input */}
+                <div style={{ position: "relative", marginBottom: "20px" }}>
+                <i className="fas fa-lock" style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "#888" }}></i>
+                <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="New Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    style={{ width: "100%", padding: "12px 40px", borderRadius: "6px", border: "1px solid #ccc", fontSize: "14px" }}
+                />
+                <i
+                    className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+                    style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", color: "#6358DC", cursor: "pointer" }}
+                    onClick={() => setShowPassword(!showPassword)}
+                ></i>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "20px", textAlign: "left" }}>
+                    <div>
+                        <input type="checkbox" style={{ marginRight: "8px" }} />
+                    </div>
+                    <div>
+                        <label style={{ fontSize: "14px", color: "#666" }}>
+                            By Creating an account, I agree to our <span style={styles.underline}>Terms of Service</span> and <span style={styles.underline}>Privacy Policy</span>
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" style={{ ...styles.button, backgroundColor: "#6358DC" }}>
+                Register
+                </button>
+            </form>
+
+            <p style={styles.toggleText}>
+                Already have an account?
+                <span style={{ ...styles.toggleLink, color: "#6358DC" }} onClick={() => toLogin()}>
+                {" Login"}
+                </span>
+            </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  container: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "#F4F4F4",
+    fontFamily: "Arial, sans-serif",
+  },
+  img: {
+    width: "75%"
+  },
+  leftContainer: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
+    backgroundSize: "cover",
+    borderTopLeftRadius: "10px",
+    borderBottomLeftRadius: "10px",
+    maxWidth: "50%",
+    height: "100vh",
+    padding: "10%"
+  },
+  rightContainer: {
+    flex: 1,
+    backgroundSize: "cover",
+    borderTopLeftRadius: "10px",
+    borderBottomLeftRadius: "10px",
+    maxWidth: "50%",
+    height: "100vh",
+    padding: "5%"
+  },
+  titleContainer: {
+    marginBottom: "30px",
+    textAlign: "left"
+  },
+  underline: {
+    textDecoration: "underline",
+    fontWeight: "bold"
+  },
+  card: {
+    width: "100%",
+    padding: "40px",
+    borderRadius: "12px",
+    background: "#fff",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+    textAlign: "center",
+  },
+  title: { fontSize: "18px", color: "#333"},
+  subtitle: { fontSize: "24px", fontWeight: '900', color: "#6358DC", marginBottom: "30px" },
+  form: { display: "flex", flexDirection: "column" },
+  button: { 
+    padding: "12px", 
+    borderRadius: "6px", 
+    border: "none", 
+    color: "#fff", 
+    fontSize: "16px", 
+    cursor: "pointer", 
+    transition: "0.3s",
+    marginTop: "10px"
+  },
+  toggleText: { marginTop: "20px", fontSize: "12px", color: "#888" },
+  toggleLink: { fontWeight: "bold", cursor: "pointer" },
+};

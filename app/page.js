@@ -3,16 +3,24 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+export default function AuthPage() {
   const router = useRouter();
+  const [isLogin, setIsLogin] = useState(true); // toggle login/register
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!isLogin && password !== confirmPassword) {
+      alert("Passwords do not match!");
+      return;
+    }
+
     try {
-      const res = await fetch("http://localhost:4000/login", {
+      const endpoint = isLogin ? "http://localhost:4000/login" : "http://localhost:4000/register";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -34,8 +42,8 @@ export default function LoginPage() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h1 style={styles.title}>Welcome</h1>
-        <p style={styles.subtitle}>Login to your account</p>
+        <h1 style={styles.title}>{isLogin ? "Welcome" : "Create Account"}</h1>
+        <p style={styles.subtitle}>{isLogin ? "Login to your account" : "Register a new account"}</p>
         <form onSubmit={handleSubmit} style={styles.form}>
           <input
             type="email"
@@ -53,10 +61,26 @@ export default function LoginPage() {
             required
             style={styles.input}
           />
+          {!isLogin && (
+            <input
+              type="password"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              style={styles.input}
+            />
+          )}
           <button type="submit" style={styles.button}>
-            Sign In
+            {isLogin ? "Sign In" : "Register"}
           </button>
         </form>
+        <p style={styles.toggleText}>
+          {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+          <span style={styles.toggleLink} onClick={() => setIsLogin(!isLogin)}>
+            {isLogin ? "Register" : "Login"}
+          </span>
+        </p>
       </div>
     </div>
   );
@@ -72,7 +96,7 @@ const styles = {
     fontFamily: "Arial, sans-serif",
   },
   card: {
-    width: "350px",
+    width: "380px",
     padding: "40px",
     borderRadius: "12px",
     boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
@@ -110,14 +134,15 @@ const styles = {
     cursor: "pointer",
     transition: "0.3s",
   },
-  footerText: {
+  toggleText: {
     marginTop: "20px",
     fontSize: "12px",
     color: "#888",
   },
-  link: {
+  toggleLink: {
     color: "#333",
-    textDecoration: "none",
     fontWeight: "bold",
+    cursor: "pointer",
+    textDecoration: "underline",
   },
 };

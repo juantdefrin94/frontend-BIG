@@ -6,43 +6,37 @@ import Swal from "sweetalert2";
 
 export default function AuthPage() {
     const router = useRouter();
-    const [isLogin, setIsLogin] = useState(true); 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!isLogin && password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        }
 
         try {
-        const res = await fetch("http://127.0.0.1:3000/api/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: email, password }),
-            credentials: "include",
-        });
-
-        const data = await res.json();
-        if (data.status == 200) {
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.data));
-            await Swal.fire({
-                icon: "success",
-                title: "Logged In!",
-                text: "Successfully logged in.",
-                timer: 1000,
-                showConfirmButton: false,
-                timerProgressBar: true, // optional, progress bar
+            const res = await fetch("http://127.0.0.1:3000/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: email, password }),
+                credentials: "include",
             });
-            router.push("/home");
-        } else {
-            alert(data.message);
-        }
+
+            const data = await res.json();
+            if (data.status == 200) {
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("user", JSON.stringify(data.data));
+                await Swal.fire({
+                    icon: "success",
+                    title: "Logged In!",
+                    text: "Successfully logged in.",
+                    timer: 1000,
+                    showConfirmButton: false,
+                    timerProgressBar: true, // optional, progress bar
+                });
+                router.push("/home");
+            } else {
+                alert(data.message);
+            }
         } catch {
             alert("Server error!");
         }
